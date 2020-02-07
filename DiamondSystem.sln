@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29509.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiamondSystem", "DiamondSystem\DiamondSystem.csproj", "{3E7CF8F9-F3E7-4250-904C-188D5A4AE7DD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3E7CF8F9-F3E7-4250-904C-188D5A4AE7DD}.Debug|x64.ActiveCfg = Debug|x64
+		{3E7CF8F9-F3E7-4250-904C-188D5A4AE7DD}.Debug|x64.Build.0 = Debug|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {556F6C06-8E4C-4DB1-B338-EB7AA8CB1D70}
+	EndGlobalSection
+EndGlobal
