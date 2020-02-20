@@ -21,6 +21,7 @@ namespace IngameScript
 {
     partial class Program
     {
+        const string PAYLOAD_TAG = "<PAYLOAD>";
         public class Torpedo
         {
             public enum TorpedoState// : byte
@@ -29,22 +30,26 @@ namespace IngameScript
                 Launch = 2,
                 Attack = 4,
                 Follow = 8,
-                ActivatePayload = 16,
+                ActivePayload = 16,
                 Reserved1 = 32,
-                Reserved2 = 64,
+                Damaged = 64,
                 Destructed = 128
             }
 
-            
+
 
             static Program program;
 
             public TorpedoState state;
 
-            List<IMyGyro> Gyros = new List<IMyGyro>();
-            List<IMyThrust> Thrusters = new List<IMyThrust>();
-            List<IMyWarhead> Warheads = new List<IMyWarhead>();
-            List<IMyFunctionalBlock> Payloads = new List<IMyFunctionalBlock>();
+            List<IMyGyro> gyros = new List<IMyGyro>();
+            List<IMyThrust> thrusters = new List<IMyThrust>();
+            List<IMyWarhead> warheads = new List<IMyWarhead>();
+            List<IMyFunctionalBlock> payloads = new List<IMyFunctionalBlock>();
+            public IMyGasGenerator gasGenerator;
+
+            long targetID;
+            TargetHoming targetHoming;
 
             public bool isInBay
             {
@@ -78,9 +83,37 @@ namespace IngameScript
                 program = _program;
             }
 
-            public Torpedo(string _tag)
+            public Torpedo(string _tag, IMyCubeGrid _grid)
             {
+                state = 0;
+                state ^= TorpedoState.InBay;
+
                 //TODO
+                List<IMyTerminalBlock> blocks = new List<IMyTerminalBlock>();
+                program.GridTerminalSystem.GetBlocksOfType<IMyTerminalBlock>(blocks, block => (block.CustomName.Contains(_tag)) && (block.CubeGrid == _grid));
+                foreach (IMyTerminalBlock block in blocks)
+                {
+                    if (block.CustomName.Contains(PAYLOAD_TAG))
+                    {
+                        payloads.Add(block as IMyFunctionalBlock);
+                        continue;
+                    }
+                    gyros.Add(block as IMyGyro);
+                    thrusters.Add(block as IMyThrust);
+                    gasGenerator = block as IMyGasGenerator;
+                    warheads.Add(block as IMyWarhead);
+                }
+                if ((gyros.Count > 0) && (thrusters.Count > 0) && (gasGenerator != null))
+                {
+                    gyros.ForEach(g => { g.Enabled = false; g.GyroOverride = true; });
+                    thrusters.ForEach(t => t.Enabled = false);
+                    warheads.ForEach(w => w.IsArmed = false);
+                    gasGenerator.Enabled = false;
+                }
+                else
+                {
+                    state ^= TorpedoState.Damaged;
+                }
 
             }
 
