@@ -21,18 +21,25 @@ namespace IngameScript
 {
     partial class Program
     {
+
+
+        struct TargetHoming
+        {
+            enum Direction : byte
+            {
+                None = 0,
+                Side = 1,
+                Frontal = 2,
+                Lateral = 3
+            }
+
+            Direction direction;
+            double quarter;
+        }
+
+
         public class Target
         {
-            //public enum TargetType
-            //{
-            //    LargeShip,
-            //    SmallShip,
-            //    Station,
-            //    Asteroid,
-            //    Wreckage,
-            //    Torpedo
-            //}
-
             public MyDetectedEntityInfo entityInfo;
             public TimeSpan scanTime = TimeSpan.Zero;
             //public TargetType type;
@@ -55,6 +62,22 @@ namespace IngameScript
                 //        break;
                 //}
             }
+
+
+            public static bool operator ==(Target T1, Target T2)
+            {
+                if(T1.entityInfo.EntityId == T2.entityInfo.EntityId)
+                { return true; }
+                return false;
+            }
+
+            public static bool operator !=(Target T1, Target T2)
+            {
+                if (T1.entityInfo.EntityId != T2.entityInfo.EntityId)
+                { return true; }
+                return false;
+            }
+
 
             public Vector3D Predict(TimeSpan _time)
             {

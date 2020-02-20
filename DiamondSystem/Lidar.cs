@@ -29,9 +29,9 @@ namespace IngameScript
             static Program program;
 
             List<IMyCameraBlock> cameras; //cameras array
-            IMyMotorStator hingeAzimuth;
-            IMyMotorStator hingeElevation;
-            bool isDamaged;
+            public IMyMotorStator hingeAzimuth;
+            public IMyMotorStator hingeElevation;
+            public bool isDamaged;
 
             public static void Init(Program _program)
             {

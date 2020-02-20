@@ -35,6 +35,8 @@ namespace IngameScript
                 Destructed = 128
             }
 
+            
+
             static Program program;
 
             public TorpedoState state;

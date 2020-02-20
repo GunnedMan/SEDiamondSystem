@@ -22,7 +22,7 @@ namespace IngameScript
     partial class Program : MyGridProgram
     {
         const string LIDAR_TAG = "<LIDAR>";
-        const double LIDAR_MAX_DISTANCE_SQ = 6000 ^ 2;
+        const double LIDAR_MAX_DISTANCE_SQ = 6000 * 6000;
 
         //Timing variables
         TimeSpan currentTime;
@@ -48,7 +48,6 @@ namespace IngameScript
 
 
             Echo("Hello world!");
-
 
         }
 
