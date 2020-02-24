@@ -23,9 +23,9 @@ namespace IngameScript
     {
 
 
-        struct TargetHoming
+        public struct TargetHoming
         {
-            enum Direction : byte
+            public enum Direction : byte
             {
                 None = 0,
                 Side = 1,
@@ -33,34 +33,69 @@ namespace IngameScript
                 Lateral = 3
             }
 
-            Direction direction;
-            double quarter;
+            public Direction direction;
+            public double quarter;
+
+            public TargetHoming(Direction _direction = Direction.None, double _quarter = 0.0)
+            {
+                direction = _direction;
+                quarter = _quarter;
+            }
         }
 
 
-        public class Target
+        public interface ITarget
         {
-            public MyDetectedEntityInfo entityInfo;
-            public TimeSpan scanTime = TimeSpan.Zero;
-            //public TargetType type;
+            MyDetectedEntityInfo entityInfo { get; }
+            Vector3D position { get; }
+            Vector3 velocity { get; }
 
+        }
+
+        public class Target : ITarget
+        {
+            public MyDetectedEntityInfo entityInfo
+            {
+                get
+                {
+                    return entityInfo;
+                }
+                set
+                {
+                    entityInfo = value;
+                }
+            }
+            public TimeSpan scanTime = TimeSpan.Zero;
+            public Vector3D position
+            {
+                get
+                {
+                    return position;
+                }
+                private set
+                {
+                    position = value;
+                }
+
+            }
+            public Vector3 velocity
+            {
+                get
+                {
+                    return velocity;
+                }
+                private set
+                {
+                    velocity = value;
+                }
+            }
 
             public Target(MyDetectedEntityInfo _entityInfo, TimeSpan _time)
             {
                 entityInfo = _entityInfo;
                 scanTime = _time;
-                //switch (_entityInfo.Type)
-                //{
-                //    case MyDetectedEntityType.LargeGrid:
-                //        type = TargetType.LargeShip;
-                //        break;
-                //    case MyDetectedEntityType.SmallGrid:
-                //        type = TargetType.SmallShip;
-                //        break;
-                //    case MyDetectedEntityType.Asteroid:
-                //        type = TargetType.Asteroid;
-                //        break;
-                //}
+                position = entityInfo.Position;
+                velocity = entityInfo.Velocity;
             }
 
 
@@ -78,7 +113,7 @@ namespace IngameScript
                 return false;
             }
 
-
+            /*
             public Vector3D Predict(TimeSpan _time)
             {
                 if (scanTime == TimeSpan.Zero)
@@ -90,6 +125,11 @@ namespace IngameScript
                 {
                     return entityInfo.Position + entityInfo.Velocity * ((float)_time.TotalSeconds - (float)scanTime.TotalSeconds);
                 }
+            }
+            */
+            public void Update()
+            {
+
             }
         }
     }

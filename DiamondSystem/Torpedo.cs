@@ -36,6 +36,15 @@ namespace IngameScript
                 Destructed = 128
             }
 
+            public enum TorpedoState2// : byte
+            {
+                InBay,
+                Launch,
+                Attack,
+                Follow,
+                Destructed
+            }
+
 
 
             static Program program;
@@ -48,7 +57,7 @@ namespace IngameScript
             List<IMyFunctionalBlock> payloads = new List<IMyFunctionalBlock>();
             public IMyGasGenerator gasGenerator;
 
-            long targetID;
+            ITarget target;
             TargetHoming targetHoming;
 
             public bool isInBay
@@ -70,13 +79,6 @@ namespace IngameScript
                     return false;
                 }
             }
-
-
-            //Target parameters
-            long targetId;
-            Vector3D targetPosition;
-            Vector3 targetVelocity;
-
 
             public static void Init(Program _program)
             {
@@ -105,7 +107,7 @@ namespace IngameScript
                 }
                 if ((gyros.Count > 0) && (thrusters.Count > 0) && (gasGenerator != null))
                 {
-                    gyros.ForEach(g => { g.Enabled = false; g.GyroOverride = true; });
+                    gyros.ForEach(g => { g.Enabled = false; g.GyroOverride = true; g.Pitch = 0; g.Yaw = 0; g.Roll = 0; });
                     thrusters.ForEach(t => t.Enabled = false);
                     warheads.ForEach(w => w.IsArmed = false);
                     gasGenerator.Enabled = false;
@@ -119,15 +121,35 @@ namespace IngameScript
 
             public void Launch()
             {
+                if (state != TorpedoState.InBay)
+                {
+                    return;
+                }
+                gyros.ForEach(g => g.Enabled = true);
+                thrusters.ForEach(t => { t.Enabled = true; t.ThrustOverridePercentage = 1; });
+                gasGenerator.Enabled = true;
+
 
             }
 
             public bool Update()
             {
-                return;
+                switch (state)
+                {
+                    case: 
+                }
+                return true;
             }
 
-            public void SetTarget
+            public void SetTarget(ITarget _target, TargetHoming _homing = new TargetHoming())
+            {
+                if(_target == null)
+                {
+                    return;
+                }
+                target = _target;
+                targetHoming = _homing;
+            }
 
 
 
