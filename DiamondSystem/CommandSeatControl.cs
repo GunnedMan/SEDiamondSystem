@@ -21,7 +21,7 @@ namespace IngameScript
 {
     partial class Program
     {
-        public class CommandSeatControl
+        public class CommandSeatControl : ISubsystem
         {
             const double keyFilterTime = 100; //milliseconds
 
@@ -41,7 +41,7 @@ namespace IngameScript
                 right = 2048
             }
 
-            static Program program;
+            Program program;
 
             IMyCockpit cockpit;
             TimeSpan lastUpdateTime = TimeSpan.Zero;
@@ -49,13 +49,18 @@ namespace IngameScript
             public Key keysPressed;
             private Key keysPressingLast;
 
-            public static void Init(Program _program)
+            public bool IsOperational
             {
-                program = _program;
+                get
+                {
+                    return (cockpit != null && cockpit.IsWorking);
+                }
             }
 
-            CommandSeatControl(string _tag)
+
+            CommandSeatControl(string _tag, Program _program)
             {
+                program = _program;
                 List<IMyCockpit> cockpits = new List<IMyCockpit>();
                 program.GridTerminalSystem.GetBlocksOfType<IMyCockpit>(cockpits, C => C.CustomName.Contains(_tag));
                 if (cockpits.Count >= 0)
@@ -91,115 +96,111 @@ namespace IngameScript
             }
 
 
-            public bool Update(TimeSpan _timestamp)
+            public void Update(TimeSpan _timestamp)
             {
                 keysPressingLast = keysPressing;
 
-                if (cockpit != null && cockpit.IsFunctional)
+                if (!IsOperational)
                 {
-                    //////////////X-axis
-                    if (cockpit.MoveIndicator.X == 0)
-                    {
-                        keysPressing &= ~(Key.a);
-                        keysPressing &= ~(Key.d);
-                    }
-                    else if (cockpit.MoveIndicator.X > 0)
-                    {
-                        keysPressing ^= Key.d;
-                        keysPressing &= ~(Key.a);
-                    }
-                    else
-                    {
-                        keysPressing &= ~(Key.d);
-                        keysPressing ^= Key.a;
-                    }
-                    //////////////Y-axis
-                    if (cockpit.MoveIndicator.Y == 0)
-                    {
-                        keysPressing &= ~(Key.w);
-                        keysPressing &= ~(Key.s);
-                    }
-                    else if (cockpit.MoveIndicator.Y > 0)
-                    {
-                        keysPressing ^= Key.w;
-                        keysPressing &= ~(Key.s);
-                    }
-                    else
-                    {
-                        keysPressing &= ~(Key.w);
-                        keysPressing ^= Key.s;
-                    }
-                    //////////////Z-axis
-                    if (cockpit.MoveIndicator.Z == 0)
-                    {
-                        keysPressing &= ~(Key.space);
-                        keysPressing &= ~(Key.c);
-                    }
-                    else if (cockpit.MoveIndicator.Z > 0)
-                    {
-                        keysPressing ^= Key.space;
-                        keysPressing &= ~(Key.c);
-                    }
-                    else
-                    {
-                        keysPressing &= ~(Key.space);
-                        keysPressing ^= Key.c;
-                    }
-                    //////////////Roll-axis
-                    if (cockpit.RollIndicator == 0)
-                    {
-                        keysPressing &= ~(Key.q);
-                        keysPressing &= ~(Key.e);
-                    }
-                    else if (cockpit.RollIndicator > 0)
-                    {
-                        keysPressing ^= Key.e;
-                        keysPressing &= ~(Key.q);
-                    }
-                    else
-                    {
-                        keysPressing &= ~(Key.e);
-                        keysPressing ^= Key.q;
-                    }
-                    //////////////Pitch-axis
-                    if (cockpit.RotationIndicator.X == 0)
-                    {
-                        keysPressing &= ~(Key.up);
-                        keysPressing &= ~(Key.down);
-                    }
-                    else if (cockpit.RollIndicator > 0)
-                    {
-                        keysPressing ^= Key.up;
-                        keysPressing &= ~(Key.down);
-                    }
-                    else
-                    {
-                        keysPressing &= ~(Key.up);
-                        keysPressing ^= Key.down;
-                    }
-                    //////////////Yaw-axis
-                    if (cockpit.RotationIndicator.Y == 0)
-                    {
-                        keysPressing &= ~(Key.right);
-                        keysPressing &= ~(Key.left);
-                    }
-                    else if (cockpit.RollIndicator > 0)
-                    {
-                        keysPressing ^= Key.right;
-                        keysPressing &= ~(Key.left);
-                    }
-                    else
-                    {
-                        keysPressing &= ~(Key.right);
-                        keysPressing ^= Key.left;
-                    }
-                    keysPressed = (keysPressing ^ keysPressingLast) & keysPressing;
-                    return true;
+                    return;
+                }
+                //////////////X-axis
+                if (cockpit.MoveIndicator.X == 0)
+                {
+                    keysPressing &= ~(Key.a);
+                    keysPressing &= ~(Key.d);
+                }
+                else if (cockpit.MoveIndicator.X > 0)
+                {
+                    keysPressing ^= Key.d;
+                    keysPressing &= ~(Key.a);
                 }
                 else
                 {
-                    return false;
+                    keysPressing &= ~(Key.d);
+                    keysPressing ^= Key.a;
                 }
+                //////////////Y-axis
+                if (cockpit.MoveIndicator.Y == 0)
+                {
+                    keysPressing &= ~(Key.w);
+                    keysPressing &= ~(Key.s);
+                }
+                else if (cockpit.MoveIndicator.Y > 0)
+                {
+                    keysPressing ^= Key.w;
+                    keysPressing &= ~(Key.s);
+                }
+                else
+                {
+                    keysPressing &= ~(Key.w);
+                    keysPressing ^= Key.s;
+                }
+                //////////////Z-axis
+                if (cockpit.MoveIndicator.Z == 0)
+                {
+                    keysPressing &= ~(Key.space);
+                    keysPressing &= ~(Key.c);
+                }
+                else if (cockpit.MoveIndicator.Z > 0)
+                {
+                    keysPressing ^= Key.space;
+                    keysPressing &= ~(Key.c);
+                }
+                else
+                {
+                    keysPressing &= ~(Key.space);
+                    keysPressing ^= Key.c;
+                }
+                //////////////Roll-axis
+                if (cockpit.RollIndicator == 0)
+                {
+                    keysPressing &= ~(Key.q);
+                    keysPressing &= ~(Key.e);
+                }
+                else if (cockpit.RollIndicator > 0)
+                {
+                    keysPressing ^= Key.e;
+                    keysPressing &= ~(Key.q);
+                }
+                else
+                {
+                    keysPressing &= ~(Key.e);
+                    keysPressing ^= Key.q;
+                }
+                //////////////Pitch-axis
+                if (cockpit.RotationIndicator.X == 0)
+                {
+                    keysPressing &= ~(Key.up);
+                    keysPressing &= ~(Key.down);
+                }
+                else if (cockpit.RollIndicator > 0)
+                {
+                    keysPressing ^= Key.up;
+                    keysPressing &= ~(Key.down);
+                }
+                else
+                {
+                    keysPressing &= ~(Key.up);
+                    keysPressing ^= Key.down;
+                }
+                //////////////Yaw-axis
+                if (cockpit.RotationIndicator.Y == 0)
+                {
+                    keysPressing &= ~(Key.right);
+                    keysPressing &= ~(Key.left);
+                }
+                else if (cockpit.RollIndicator > 0)
+                {
+                    keysPressing ^= Key.right;
+                    keysPressing &= ~(Key.left);
+                }
+                else
+                {
+                    keysPressing &= ~(Key.right);
+                    keysPressing ^= Key.left;
+                }
+                keysPressed = (keysPressing ^ keysPressingLast) & keysPressing;
             }
         }
     }

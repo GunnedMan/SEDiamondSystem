@@ -30,7 +30,8 @@ namespace IngameScript
                 None = 0,
                 Side = 1,
                 Frontal = 2,
-                Lateral = 3
+                Lateral = 3,
+                Follow = 4,
             }
 
             public Direction direction;
@@ -44,13 +45,6 @@ namespace IngameScript
         }
 
 
-        public interface ITarget
-        {
-            MyDetectedEntityInfo entityInfo { get; }
-            Vector3D position { get; }
-            Vector3 velocity { get; }
-
-        }
 
         public class Target : ITarget
         {
@@ -65,7 +59,7 @@ namespace IngameScript
                     entityInfo = value;
                 }
             }
-            public TimeSpan scanTime = TimeSpan.Zero;
+            public TimeSpan lastScanTime = TimeSpan.Zero;
             public Vector3D position
             {
                 get
@@ -90,10 +84,26 @@ namespace IngameScript
                 }
             }
 
+            public bool IsTracking
+            {
+                get
+                {
+                    if (entityInfo.Type == MyDetectedEntityType.Asteroid || entityInfo.Type == MyDetectedEntityType.Planet)
+                    {
+                        return false;
+                    }
+                    return IsTracking;
+                }
+                set
+                {
+                    IsTracking = value;
+                }
+            }
+
             public Target(MyDetectedEntityInfo _entityInfo, TimeSpan _time)
             {
                 entityInfo = _entityInfo;
-                scanTime = _time;
+                lastScanTime = _time;
                 position = entityInfo.Position;
                 velocity = entityInfo.Velocity;
             }
@@ -127,9 +137,17 @@ namespace IngameScript
                 }
             }
             */
-            public void Update()
+            public void Update(TimeSpan _currentTime)
             {
+                position = entityInfo.Position + entityInfo.Velocity * (float)(_currentTime.TotalSeconds - lastScanTime.TotalSeconds);
+            }
 
+            public void UpdateEntity(TimeSpan _currentTime, MyDetectedEntityInfo detectedEntityInfo)
+            {
+                entityInfo = entityInfo;
+                lastScanTime = _currentTime;
+                position = entityInfo.Position;
+                velocity = entityInfo.Velocity;
             }
         }
     }

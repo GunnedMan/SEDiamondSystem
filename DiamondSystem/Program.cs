@@ -21,11 +21,16 @@ namespace IngameScript
 {
     partial class Program : MyGridProgram
     {
+        const double WORLD_MAX_SPEED = 1000;
+        const double WORLD_MAX_SPEED_SQ = WORLD_MAX_SPEED * WORLD_MAX_SPEED;
+
         const string LIDAR_TAG = "<LIDAR>";
         const double LIDAR_MAX_DISTANCE_SQ = 6000 * 6000;
 
+        const string TORPEDO_TAG = "<Torpedo>";
+
         //Timing variables
-        TimeSpan currentTime;
+        public TimeSpan currentTime;
 
 
         //Lidar object
@@ -40,11 +45,8 @@ namespace IngameScript
 
         public Program()
         {
-            Lidar.Init(this);
-            CommandSeatControl.Init(this);
-            Torpedo.Init(this);
 
-            mainLidar = new Lidar(LIDAR_TAG);
+            mainLidar = new Lidar(LIDAR_TAG, this);
 
 
             Echo("Hello world!");

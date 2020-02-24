@@ -21,15 +21,15 @@ namespace IngameScript
 {
     partial class Program
     {
-        public static Vector3D CalculateHoming(MatrixD _origin, Vector3D _target)
+        public static Vector3 CalculateHoming(MatrixD _origin, Vector3D _target)
         {
-            Vector3D result = Vector3D.Zero;
+            Vector3 result = Vector3.Zero;
 
             _target = Vector3D.Normalize(_target);
 
-            double dotUp = _origin.Up.Dot(_target);
-            double dotRight = _origin.Right.Dot(_target);
-            double dotForward = _origin.Forward.Dot(_target);
+            float dotUp = (float)_origin.Up.Dot(_target);
+            float dotRight = (float)_origin.Right.Dot(_target);
+            float dotForward = (float)_origin.Forward.Dot(_target);
 
             //тангаж
             if (dotForward > 0)

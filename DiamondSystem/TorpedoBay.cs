@@ -21,7 +21,7 @@ namespace IngameScript
 {
     partial class Program
     {
-        public class TorpedoBay
+        public class TorpedoBay : ISubsystem
         {
             public enum TorpedoBayState
             {
@@ -33,7 +33,7 @@ namespace IngameScript
                 Damaged
             }
 
-            static Program program;
+            Program program;
 
             TorpedoBayState state;
 
@@ -44,14 +44,19 @@ namespace IngameScript
             MyInventoryItem ice;
 
             Torpedo torpedoInBay;
-
-            public static void Init(Program _program)
+            public bool IsOperational
             {
-                program = _program;
+                get
+                {
+                    return state != TorpedoBayState.Damaged;
+                }
             }
 
-            public TorpedoBay(string _tag)
+
+            public TorpedoBay(string _tag, Program _program)
             {
+                program = _program;
+
                 List<IMyTerminalBlock> blocks = new List<IMyTerminalBlock>();
                 program.GridTerminalSystem.GetBlocksOfType<IMyTerminalBlock>(blocks, block => block.CustomName.Contains(_tag));
                 foreach (IMyTerminalBlock block in blocks)
@@ -80,8 +85,10 @@ namespace IngameScript
                 }
             }
 
-            public void Update()
+            public void Update(TimeSpan currentTime)
             {
+                //TODO переписать код на целостность торпедного аппарата
+
                 if (iceContainer == null || !iceContainer.IsFunctional)
                 {
                     state = TorpedoBayState.Damaged;
@@ -141,9 +148,8 @@ namespace IngameScript
                             {
                                 welder.Enabled = false;
                             }
-                            //TODO add const for torpedo tag
-                            torpedoInBay = new Torpedo("<torpedo>", activeProjector.CubeGrid);
-                            if ((torpedoInBay.state & Torpedo.TorpedoState.Damaged) == 0)
+                            torpedoInBay = new Torpedo(TORPEDO_TAG, activeProjector.CubeGrid, program);
+                            if (!torpedoInBay.isDamaged)
                             {
                                 if (iceContainer.GetInventory(0).TransferItemTo(torpedoInBay.gasGenerator.GetInventory(0), (MyInventoryItem)_ice, 200))
                                 {
@@ -172,11 +178,11 @@ namespace IngameScript
                 }
             }
 
-            public Torpedo Launch()
+            public Torpedo Launch(TimeSpan _launchTime)
             {
                 if (state == TorpedoBayState.ReadyToLaunch)
                 {
-                    torpedoInBay.Launch();
+                    torpedoInBay.Launch(_launchTime);
                     state = TorpedoBayState.Launching;
                     return torpedoInBay;
                 }

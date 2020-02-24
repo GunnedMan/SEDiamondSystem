@@ -21,40 +21,90 @@ namespace IngameScript
 {
     partial class Program
     {
-        public class Lidar
+        public class Lidar : ISubsystem
         {
+            public enum LidarState
+            {
+                None,
+                Idle,
+                Manual,
+                Auto,
+                Damaged,
+                Inoperable
+            }
+
             const string HINGE_AZIMUTH_TAG = "<AZ>";
             const string HINGE_ELEVATION_TAG = "<EL>";
 
-            static Program program;
+            Program program;
+            
 
+            IMyCameraBlock mainCamera;
             List<IMyCameraBlock> cameras; //cameras array
             public IMyMotorStator hingeAzimuth;
             public IMyMotorStator hingeElevation;
             public bool isDamaged;
+            public LidarState state;
+            public bool IsOperational
+            {
+                get
+                {
+                    return state != LidarState.Inoperable;
+                }
+            }
 
-            public static void Init(Program _program)
+            public Lidar(string _tag, Program _program)
             {
                 program = _program;
-            }
-            public Lidar(string _tag)
-            {
                 isDamaged = false;
-
-                List<IMyMotorStator> motorStatorBlocks = new List<IMyMotorStator>();
-                IMyBlockGroup lidarBlocks = program.GridTerminalSystem.GetBlockGroupWithName(_tag);
-                lidarBlocks.GetBlocksOfType<IMyCameraBlock>(cameras);
-                foreach (IMyCameraBlock camera in cameras)
+                List<IMyTerminalBlock> blocks = new List<IMyTerminalBlock>();
+                List<IMyTerminalBlock> blocksTemp = new List<IMyTerminalBlock>();
+                program.GridTerminalSystem.GetBlocksOfType<IMyTerminalBlock>(blocks, block => block.CustomName.Contains(_tag));
+                //main camera
+                blocksTemp = blocks.Where<IMyTerminalBlock>(block => (block is IMyCameraBlock)) as List<IMyTerminalBlock>;
+                if (blocksTemp.Count == 0)
                 {
-                    camera.EnableRaycast = true;
+                    state = LidarState.Inoperable;
+                    return;
                 }
+                mainCamera = blocksTemp[0] as IMyCameraBlock;
+                //Azimuth hinge
+                blocksTemp = blocks.Where<IMyTerminalBlock>(block => (block is IMyMotorStator && block.CustomName.Contains(HINGE_AZIMUTH_TAG))) as List<IMyTerminalBlock>;
+                if (blocksTemp.Count == 0)
+                {
 
-                lidarBlocks.GetBlocksOfType<IMyMotorStator>(motorStatorBlocks, block => block.CustomName.Contains(HINGE_AZIMUTH_TAG));
-                hingeAzimuth = motorStatorBlocks[0];
-                motorStatorBlocks.Clear();
-                lidarBlocks.GetBlocksOfType<IMyMotorStator>(motorStatorBlocks, block => block.CustomName.Contains(HINGE_ELEVATION_TAG));
-                hingeElevation = motorStatorBlocks[0];
+                }
+                else
+                {
+                    hingeAzimuth = blocksTemp[0] as IMyMotorStator;
+                }
+                //Elevation hinge
+                blocksTemp = blocks.Where<IMyTerminalBlock>(block => (block is IMyMotorStator && block.CustomName.Contains(HINGE_ELEVATION_TAG))) as List<IMyTerminalBlock>;
+                if (blocksTemp.Count == 0)
+                {
+                    
+                }
+                else
+                {
+                    hingeElevation = blocksTemp[0] as IMyMotorStator;
+                }
+                //Cameras array
+                program.GridTerminalSystem.GetBlocksOfType<IMyCameraBlock>(cameras, camera => (camera.CubeGrid == mainCamera.CubeGrid && camera.Orientation == mainCamera.Orientation));
+                if (cameras.Count == 0)
+                {
+
+                }
+                else
+                {
+                    cameras.ForEach(camera => camera.EnableRaycast = true);
+                }
             }
+
+            public void Update(TimeSpan currentTime)
+            {
+
+            }
+
             public MyDetectedEntityInfo Scan(Vector3D point)
             {
                 MyDetectedEntityInfo foundTarget = new MyDetectedEntityInfo();

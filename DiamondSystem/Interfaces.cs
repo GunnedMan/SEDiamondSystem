@@ -24,8 +24,22 @@ namespace IngameScript
 
         public interface ISubsystem
         {
+            bool IsOperational
+            {
+                get;
+            }
+
+            void Update(TimeSpan currentTime);
+        }
+        public interface ITarget
+        {
+            MyDetectedEntityInfo entityInfo { get; }
+            Vector3D position { get; }
+            Vector3 velocity { get; }
+            bool IsTracking { get; set; }
 
         }
+
 
 
     }
