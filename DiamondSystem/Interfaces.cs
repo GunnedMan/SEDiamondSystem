@@ -33,10 +33,12 @@ namespace IngameScript
         }
         public interface ITarget
         {
-            MyDetectedEntityInfo entityInfo { get; }
-            Vector3D position { get; }
-            Vector3 velocity { get; }
-            bool IsTracking { get; set; }
+            MyDetectedEntityInfo EntityInfo { get; }
+            Vector3D Position { get; }
+            Vector3 Velocity { get; }
+            bool IsMoveable { get; }
+            bool IsMissed { get; }
+            void UpdateEntity(TimeSpan _currentTime, MyDetectedEntityInfo detectedEntityInfo);
 
         }
 

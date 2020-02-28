@@ -58,7 +58,7 @@ namespace IngameScript
             }
 
 
-            CommandSeatControl(string _tag, Program _program)
+            public CommandSeatControl(string _tag, Program _program)
             {
                 program = _program;
                 List<IMyCockpit> cockpits = new List<IMyCockpit>();
@@ -79,18 +79,18 @@ namespace IngameScript
 
             public bool IsKeyPressing(Key _key)
             {
-                if ((keysPressing & _key) == _key)
+                if(IsOperational)
                 {
-                    return true;
+                    return ((keysPressing & _key) == _key);
                 }
                 return false;
             }
 
             public bool IsKeyPressed(Key _key)
             {
-                if ((keysPressed & _key) == _key)
+                if (IsOperational)
                 {
-                    return true;
+                    return ((keysPressed & _key) == _key);
                 }
                 return false;
             }

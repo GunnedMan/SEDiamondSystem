@@ -198,6 +198,7 @@ namespace IngameScript
                         welder.Enabled = true;
                     }
                     activeProjector.Enabled = true;
+                    state = TorpedoBayState.Reloading;
                     return true;
                 }
                 return false;

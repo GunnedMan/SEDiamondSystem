@@ -24,10 +24,18 @@ namespace IngameScript
         const double WORLD_MAX_SPEED = 1000;
         const double WORLD_MAX_SPEED_SQ = WORLD_MAX_SPEED * WORLD_MAX_SPEED;
 
-        const string LIDAR_TAG = "<LIDAR>";
-        const double LIDAR_MAX_DISTANCE_SQ = 6000 * 6000;
+        const int PROGRAM_MAX_TARGETS = 4;
+        const int PROGRAM_MAX_TORPEDOES = 8;
+
+        const string LIDAR_TAG = "<Lidar>";
+        const double LIDAR_MAX_DISTANCE = 6000;
+        const double LIDAR_MAX_DISTANCE_SQ = LIDAR_MAX_DISTANCE * LIDAR_MAX_DISTANCE;
 
         const string TORPEDO_TAG = "<Torpedo>";
+
+        const string TORPEDO_BAY_TAG = "<T_Bay>";
+
+        const string FIRE_POST_TAG = "<Fire_Post>"
 
         //Timing variables
         public TimeSpan currentTime;
@@ -36,8 +44,13 @@ namespace IngameScript
         //Lidar object
         Lidar mainLidar;
 
-        
+        List<Target> Targets = new List<Target>(PROGRAM_MAX_TARGETS);
 
+        List<Torpedo> Torpedoes = new List<Torpedo>(PROGRAM_MAX_TORPEDOES);
+
+        List<TorpedoBay> TorpedoBays = new List<TorpedoBay>();
+
+        CommandSeatControl FirePost;
 
 
 
@@ -47,6 +60,8 @@ namespace IngameScript
         {
 
             mainLidar = new Lidar(LIDAR_TAG, this);
+            TorpedoBays.Add(new TorpedoBay(TORPEDO_BAY_TAG, this));
+            FirePost = new CommandSeatControl(FIRE_POST_TAG, this);
 
 
             Echo("Hello world!");
@@ -63,8 +78,21 @@ namespace IngameScript
             //TIMINGS
             currentTime += Runtime.TimeSinceLastRun;
             //GETTING CONTROL INPUTS
-
-
+            if(FirePost.IsKeyPressed(CommandSeatControl.Key.s))
+            {
+                TorpedoBays.ForEach(tb => tb.Reload());
+            }
+            if (FirePost.IsKeyPressed(CommandSeatControl.Key.w))
+            {
+                TorpedoBays.ForEach(tb => 
+                {
+                    Torpedo torpedo = tb.Launch(currentTime);
+                    if(torpedo != null)
+                    {
+                        Torpedoes.Add(torpedo);
+                    }
+                });
+            }
         }
     }
 }

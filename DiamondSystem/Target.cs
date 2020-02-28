@@ -21,7 +21,7 @@ namespace IngameScript
 {
     partial class Program
     {
-
+        public const int TARGET_IS_MISSED_TIME = 2; //seconds
 
         public struct TargetHoming
         {
@@ -48,77 +48,83 @@ namespace IngameScript
 
         public class Target : ITarget
         {
-            public MyDetectedEntityInfo entityInfo
+            public MyDetectedEntityInfo EntityInfo
             {
                 get
                 {
-                    return entityInfo;
+                    return EntityInfo;
                 }
                 set
                 {
-                    entityInfo = value;
+                    EntityInfo = value;
                 }
             }
-            public TimeSpan lastScanTime = TimeSpan.Zero;
-            public Vector3D position
+            public TimeSpan LastEntityUpdateTime = TimeSpan.Zero;
+            public Vector3D Position
             {
                 get
                 {
-                    return position;
+                    return Position;
                 }
                 private set
                 {
-                    position = value;
+                    Position = value;
                 }
 
             }
-            public Vector3 velocity
+            public Vector3 Velocity
             {
                 get
                 {
-                    return velocity;
+                    return Velocity;
                 }
                 private set
                 {
-                    velocity = value;
+                    Velocity = value;
                 }
             }
 
-            public bool IsTracking
+            public bool IsMoveable
+            {
+                private set { IsMoveable = value; }
+                get { return IsMoveable; }
+            }
+
+            public bool IsTracked;
+
+            public bool IsMissed
             {
                 get
                 {
-                    if (entityInfo.Type == MyDetectedEntityType.Asteroid || entityInfo.Type == MyDetectedEntityType.Planet)
-                    {
-                        return false;
-                    }
-                    return IsTracking;
-                }
-                set
-                {
-                    IsTracking = value;
+                    return (LastEntityUpdateTime.Seconds >= TARGET_IS_MISSED_TIME);
                 }
             }
 
             public Target(MyDetectedEntityInfo _entityInfo, TimeSpan _time)
             {
-                entityInfo = _entityInfo;
-                lastScanTime = _time;
-                position = entityInfo.Position;
-                velocity = entityInfo.Velocity;
+                EntityInfo = _entityInfo;
+                LastEntityUpdateTime = _time;
+                Position = EntityInfo.Position;
+                Velocity = EntityInfo.Velocity;
+                if (EntityInfo.Type == MyDetectedEntityType.Asteroid || EntityInfo.Type == MyDetectedEntityType.Planet)
+                {
+                    IsMoveable = false;
+                }
+
+
             }
 
 
             public static bool operator ==(Target T1, Target T2)
             {
-                if(T1.entityInfo.EntityId == T2.entityInfo.EntityId)
+                if(T1.EntityInfo.EntityId == T2.EntityInfo.EntityId)
                 { return true; }
                 return false;
             }
 
             public static bool operator !=(Target T1, Target T2)
             {
-                if (T1.entityInfo.EntityId != T2.entityInfo.EntityId)
+                if (T1.EntityInfo.EntityId != T2.EntityInfo.EntityId)
                 { return true; }
                 return false;
             }
@@ -139,15 +145,19 @@ namespace IngameScript
             */
             public void Update(TimeSpan _currentTime)
             {
-                position = entityInfo.Position + entityInfo.Velocity * (float)(_currentTime.TotalSeconds - lastScanTime.TotalSeconds);
+                if(EntityInfo.IsEmpty() && !IsMoveable)
+                { return; }
+                Position = EntityInfo.Position + EntityInfo.Velocity * (float)(_currentTime.TotalSeconds - LastEntityUpdateTime.TotalSeconds);
             }
 
             public void UpdateEntity(TimeSpan _currentTime, MyDetectedEntityInfo detectedEntityInfo)
             {
-                entityInfo = entityInfo;
-                lastScanTime = _currentTime;
-                position = entityInfo.Position;
-                velocity = entityInfo.Velocity;
+                if(detectedEntityInfo.IsEmpty() && detectedEntityInfo.EntityId != EntityInfo.EntityId)
+                { return; }
+                EntityInfo = EntityInfo;
+                LastEntityUpdateTime = _currentTime;
+                Position = EntityInfo.Position;
+                Velocity = EntityInfo.Velocity;
             }
         }
     }

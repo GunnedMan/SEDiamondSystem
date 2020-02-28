@@ -51,6 +51,7 @@ namespace IngameScript
             List<IMyWarhead> warheads = new List<IMyWarhead>();
             List<IMyFunctionalBlock> payloads = new List<IMyFunctionalBlock>();
             public IMyGasGenerator gasGenerator;
+            
 
 
             ITarget target;
@@ -74,7 +75,7 @@ namespace IngameScript
             public Torpedo(string _tag, IMyCubeGrid _grid, Program _program)
             {
                 program = _program;
-
+                
                 state = TorpedoState.InBay;
 
                 List<IMyTerminalBlock> blocks = new List<IMyTerminalBlock>();
@@ -177,8 +178,8 @@ namespace IngameScript
                     case TorpedoState.Attack:
                         {
                             Vector3D additionVector = Vector3D.Zero;
-                            Vector3D vectorToTarget = target.position - gyros[0].GetPosition();
-                            Vector3D targetForwardDirection = target.entityInfo.Orientation.Forward;
+                            Vector3D vectorToTarget = target.Position - gyros[0].GetPosition();
+                            Vector3D targetForwardDirection = target.EntityInfo.Orientation.Forward;
                             switch (targetHoming.direction)
                             {
                                 case TargetHoming.Direction.Side:
@@ -192,8 +193,8 @@ namespace IngameScript
                                     break;
                             }
                             //TODO homing!
-                            Vector3D result = Vector3D.Normalize(vectorToTarget) * WORLD_MAX_SPEED - velocity + target.velocity;
-                            Vector3 homingVector = CalculateHoming(gyros[0].WorldMatrix, target.position);
+                            Vector3D result = Vector3D.Normalize(vectorToTarget) * WORLD_MAX_SPEED - velocity + target.Velocity;
+                            Vector3 homingVector = CalculateHoming(gyros[0].WorldMatrix, target.Position);
                             gyros.ForEach(g => { g.Pitch = homingVector.X; g.Yaw = homingVector.Y; });
                         }
                         break;
