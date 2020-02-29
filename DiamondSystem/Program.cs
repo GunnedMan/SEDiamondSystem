@@ -35,7 +35,7 @@ namespace IngameScript
 
         const string TORPEDO_BAY_TAG = "<T_Bay>";
 
-        const string FIRE_POST_TAG = "<Fire_Post>"
+        const string FIRE_POST_TAG = "<Fire_Post>";
 
         //Timing variables
         public TimeSpan currentTime;
